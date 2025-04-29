@@ -194,9 +194,9 @@ These checks confirm that the operator pulled the chart, rendered all templates,
 ---
 
 ### Recommended next steps for Infrastructure Optimization
-	•	Fine-tune node pools & autoscaling (e.g. ramp up GKE node types in prod)
-	•	Enable monitoring & alerting (e.g. Cloud Monitoring Alerts integrated with external channels such as Slack to monitor Loadbalancer health checks and errors)
-	•	Explore additional module inputs (e.g. Redis Cache for faster application response times)
+- Fine-tune node pools & autoscaling (e.g. ramp up GKE node types in prod)
+- Enable monitoring & alerting (e.g. Cloud Monitoring Alerts integrated with external channels such as Slack to monitor Loadbalancer health checks and errors)
+- Explore additional module inputs (e.g. Redis Cache for faster application response times)
 
 ---
 
