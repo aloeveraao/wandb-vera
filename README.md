@@ -1,19 +1,21 @@
-# Weights & Biases Self-Hosted Server Deployment
+# Weights & Biases Self-Hosted Server GCP Deployment
 
 ## Overview  
 Quickstart on how to self-deploy Weights & Biases (W&B) Server on GCP using Terraform. 
 
 By following this guide you will have:
-	•	A GKE cluster running W&B in GCP
-	•	A public HTTPS endpoint at https://<subdomain>.<domain> with a valid certificate
-	•	A Cloud Storage bucket for experiment data
-	•	A demo W&B project with ≥10 runs to validate that everything works
+- A GKE cluster running W&B in GCP
+- A public HTTPS endpoint at https://<subdomain>.<domain> with a valid certificate
+- A Cloud Storage bucket for experiment data, as well as other supporting GCP infrastructure
+- A demo W&B project with ≥10 runs to validate that everything works
 
 **References:**  
 - Official self-hosted GCP guide: https://docs.wandb.ai/guides/hosting/self-managed/gcp-tf/  
 - W&B Terraform module: https://registry.terraform.io/modules/wandb/wandb/google  
 
-Additional notes and caveats are mentioned in each section. This approach aims to minimize troubleshooting and infrastructure changes. There may be other approaches that are more suitable towards your use case and environment. 
+Additional notes and caveats are mentioned in each section. This approach aims to minimize troubleshooting and infrastructure changes. 
+
+Please note that there may be other approaches which are more suitable towards your specific use case and environment. 
 
 ---
 
@@ -39,7 +41,7 @@ Additional notes and caveats are mentioned in each section. This approach aims t
 
 ### 1. Create variables.tf, terraform.tfvars, and main.tf files. 
 
-For main.tf, ensure you're pulling the latest version of the wandb module. Example: version = "~> 9.0"
+For `main.tf`, ensure you're pulling the latest version of the wandb module. Example: version = `"~> 9.0"`
 
 ### 2. Populate the terraform.tfvars file. 
 
@@ -57,11 +59,11 @@ For main.tf, ensure you're pulling the latest version of the wandb module. Examp
 **⸻ Notes & Limitations ⸻**
 
 **Region and Zone** 
-- Consider choosing a less-contended GCP region when possible. Otherwise, you may encounter a resource constraint error (GCE_STOCKOUT). Keep in mind that  specifying a single `zone` does not mean that your resources will only be provisioned in that zone.
+- Consider choosing a less-contended GCP region when possible. Otherwise, you may encounter a resource constraint error (`GCE_STOCKOUT`). Keep in mind that  specifying a single `zone` does not mean that your resources will only be provisioned in that zone.
 
 By default, the module deploys a regional GKE cluster with balanced auto-scaling (multi-zonal). As seen in the example below, we ran into errors for other zones, even though our tfvars file only had one zone explicitly listed. 
 
-![Resource Error](screenshots/README/image-1.png)
+![Resource Constraint](<screenshots/readme/Resource Constraint.png>)
 
 **Domain and Subdomain** 
 - You must have a registered Domain Name and subdomain record in order for Google's Managed Certificate to be successfully activated. 
@@ -69,21 +71,21 @@ By default, the module deploys a regional GKE cluster with balanced auto-scaling
 **GKE Node Count** 
 - You may hit a quota limit on "Persistent Disk SSD (GB)". If you are on GCP free tier, this quota cannot be increased beyond the standard amount of 500 GB. See below for a workaround. 
 
-![Quota Error](screenshots/README/image-2.png)
+![Quota Error](<screenshots/readme/Quota Error.png>)
 
 If you encounter this error without specifying a deployment size, then you must manually override the Cluster Sizing in your terraform.tfvars. This is because the deployment size for W&B already defaults to the lowest level (small). Since we cannot set a lower level for cluster size, individual cluster parameters must be adjusted instead. 
 
 For this purposes of this deployment, the GKE node counts were adjusted. Based on the GCP TFE Module documentation, each GKE node consumes 100 GB for the node root volume (assuming all other parameters are unchanged). 
 
-![TFE GCP Documentation](screenshots/README/image.png)
+![GKE Node Size](<screenshots/readme/GKE Node Size.png>)
 
 Therefore, the maximum node count was set to 5 nodes, thus ensuring that the total GB used remains under the free tier quota limit of 500 GB. 
+
+![2-node GKE Cluster](<screenshots/infrastructure/GKE Cluster.png>)
 
 Please note that specifying minimum and maximum GKE nodes will also prevent the cluster from auto-scaling beyond the set amounts. 
 
 If desired, you could also change these size values: redis_memory_size_gb, database_machine_type, gke_machine_type
-
-![2-node GKE Cluster](<screenshots/infrastructure/GKE Cluster.png>)
 
 **W&B License** 
 - You must have a valid license code, or you will experience errors while navigating your W&B UI. A free trial of this license can be obtained here: https://wandb.ai/site/enterprise-trial/.
@@ -92,6 +94,7 @@ If desired, you could also change these size values: redis_memory_size_gb, datab
 ### 3.	Terraform Initialize & plan
 
 ```terraform init```
+
 ```terraform plan -var-file=terraform.tfvars```
 
 Review the proposed changes to ensure that the resources are being created, updated, or deleted as expected. 
@@ -108,11 +111,11 @@ Your output should look similar to the following:
 
 Outputs:
 
-url = "https://wandb.my-domain.com"
+```url = "https://wandb.my-domain.com"
 address = "34.237.13.125"
-bucket_name = "wandb-my-domain-data"
+bucket_name = "wandb-my-domain-data"```
 
-⸻
+---
 
 ### 6. Verification. 
  
@@ -136,7 +139,7 @@ If the status shows "Provisioning", GCP is still trying to verify the domain. On
 
 ![Runs](screenshots/platform/Runs.png)
 
-⸻
+---
 
 ### 7. Helm & Operator Verification
 
@@ -148,14 +151,19 @@ Although the Terraform module handles installing the W&B Helm chart via the oper
 
 You should see a pod that starts with `wandb-controller-manager`
 
--  **Tail its logs to watch reconciliation:**
+-  **Tail logs to monitor status:**
+
+```bash
 kubectl -n wandb logs deploy/wandb-controller-manager --follow
 
 Look for a line like the following: 
 
-```"Successfully applied spec","controller":"weightsandbiases"``` 
+```bash
+"Successfully applied spec","controller":"weightsandbiases"
 
 **Confirm components are running:**
+
+```bash
 kubectl -n default get deployments,sts
 
 You should see your deployments all READY, for example: 
@@ -164,23 +172,24 @@ You should see your deployments all READY, for example:
 
 These checks confirm that the operator pulled the chart, rendered all templates, and applied them successfully in the cluster.
 
-⸻
+---
 
 ### Recommended next steps for Infrastructure Optimization
 	•	Fine-tune node pools & autoscaling (e.g. ramp up GKE node types in prod)
 	•	Enable monitoring & alerting (e.g. Cloud Monitoring Alerts integrated with external channels such as Slack to monitor Loadbalancer health checks and errors)
 	•	Explore additional module inputs (e.g. Redis Cache for faster application response times)
 
-⸻
+---
 
 ### Appendix: Infrastructure and platform screenshots
 
 For a deeper look at the Terraform-provisioned infrastructure and the fully running W&B UI, see the screenshot folders in this repo:
 
 [infrastructure](screenshots/infrastructure)  – VPC, GKE cluster, load balancer, DNS setup, Pub/Sub, etc.
+
 [platform](screenshots/platform) – W&B home page, system console, health dashboard, and demo runs.
 
-⸻
+---
 
 This project demonstrates alignment with Weights & Biases' core values: 
 
