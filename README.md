@@ -22,6 +22,7 @@ Please note that there may be other approaches which are more suitable towards y
 ## Contents  
 - `terraform/` – Terraform code  
 - `screenshots/infrastructure` – GCP Infrastructure images
+- `screenshots/platform` – Weights & Biases UI images
 - `screenshots/readme` – Reference images for README.md 
 - `scripts/demo_runs.py` - Python script that logs an example run to your new W&B instance
 - `README.md` – Deployment guide
@@ -92,10 +93,16 @@ Please note that specifying minimum and maximum GKE nodes will also prevent the 
 If desired, you could also change these size values: `redis_memory_size_gb`, `database_machine_type`, `gke_machine_type`
 
 **W&B License** 
-- You must have a valid license code, or you will experience errors while navigating your W&B UI. A free trial of this license can be obtained here: https://wandb.ai/site/enterprise-trial/.
+- You must have a valid license code, or you may experience errors while navigating your W&B UI (as shown below). A free trial of this license can be obtained here: https://wandb.ai/site/enterprise-trial/.
+
+![License Error](<screenshots/platform/UI Errors.jpg>)
 
 
-### 3.	Terraform Initialize & plan
+### 3.	Terraform Initialize & Plan
+
+Once you have created the necessary terraform files, you can proceed to plan out the terraform deployment. 
+
+Run the following commands: 
 
 ```terraform init```
 
@@ -120,7 +127,6 @@ url = "https://wandb.my-domain.com"
 address = "34.237.13.125"
 bucket_name = "wandb-my-domain-data"
 ```
-
 ---
 
 ### 6. Verification. 
@@ -152,6 +158,7 @@ If the status shows "Provisioning", GCP is still trying to verify the domain. On
 Although the Terraform module handles installing the W&B Helm chart via the operator, there are some additional verifications checks you can run:
 
 -  **Confirm operator is running**  
+
    ```bash
    kubectl -n wandb get pods -o wide --show-labels
 
@@ -159,18 +166,15 @@ You should see a pod that starts with `wandb-controller-manager`
 
 -  **Tail logs to monitor status:**
 
-```bash
-kubectl -n wandb logs deploy/wandb-controller-manager --follow
+`kubectl -n wandb logs deploy/wandb-controller-manager --follow`
 
 Look for a line like the following: 
 
-```bash
-"Successfully applied spec","controller":"weightsandbiases"
+`"Successfully applied spec","controller":"weightsandbiases"`
 
 **Confirm components are running:**
 
-```bash
-kubectl -n default get deployments,sts
+`kubectl -n default get deployments,sts`
 
 You should see your deployments all READY, for example: 
 
