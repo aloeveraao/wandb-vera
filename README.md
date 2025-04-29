@@ -141,6 +141,9 @@ url = "https://wandb.my-domain.com"
 address = "34.237.13.125"
 bucket_name = "wandb-my-domain-data"
 ```
+
+Make sure to add an "A" record in your DNS hosted zone which points to the IP address provided in your output. 
+
 ---
 ### 6. Operator Verification
 
