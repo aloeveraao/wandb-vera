@@ -40,6 +40,8 @@ Please note that there may be other approaches which are more suitable towards y
 
 ## Quickstart
 
+---
+
 ### 1. Create variables.tf, terraform.tfvars, and main.tf files. 
 
 For `main.tf`, ensure you're pulling the latest version of the wandb module. Example: version = `"~> 9.0"`
@@ -101,6 +103,7 @@ See the image below for an example of a two-node GKE cluster that was deployed u
 
 ![License Error](<screenshots/platform/UI Errors.jpg>)
 
+---
 
 ### 3.	Terraform Initialize & Plan
 
@@ -114,11 +117,15 @@ Run the following commands:
 
 Review the proposed changes to ensure that the resources are being created, updated, or deleted as expected. 
 
+---
+
 ### 4.	Terraform Apply
 
 After you've confirmed the terraform plan, you can apply the plan.  
 
 ```terraform apply -var-file=terraform.tfvars```
+
+---
 
 ### 5. Note the outputs (url, address, bucket_name)
 
