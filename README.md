@@ -57,7 +57,7 @@ For `main.tf`, ensure you're pulling the latest version of the wandb module. Exa
 | `gke_max_node_count` | number  | Max GKE node-count (optional)                      |
 | `license`            | string  | W&B Enterprise license key                         |
 
-**⸻ Notes & Limitations ⸻**
+### **⸻ Notes & Limitations ⸻**
 
 **Region and Zone** 
 - Consider choosing a less-contended GCP region when possible. Otherwise, you may encounter a resource constraint error (`GCE_STOCKOUT`). Keep in mind that  specifying a single `zone` does not mean that your resources will only be provisioned in that zone.
