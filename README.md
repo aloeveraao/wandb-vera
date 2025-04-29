@@ -132,8 +132,43 @@ address = "34.237.13.125"
 bucket_name = "wandb-my-domain-data"
 ```
 ---
+### 6. Helm & Operator Verification
 
-### 6. Verification. 
+Although the Terraform module handles installing the W&B Helm chart via the operator, there are some additional verifications checks you can run:
+
+-  **Confirm operator is running**  
+
+   ```bash
+   kubectl -n wandb get pods -o wide --show-labels
+
+You should see a pod that starts with `wandb-controller-manager`
+
+-  **Tail logs to monitor status:**
+
+    ```bash
+    kubectl -n wandb logs deploy/wandb-controller-manager --follow
+
+- **Look for a line like the following:**
+
+    ```bash
+    "Successfully applied spec","controller":"weightsandbiases"
+    
+
+- **Confirm components are running**
+
+    ```bash
+    kubectl -n default get deployments,sts
+
+
+You should see your deployments all READY, for example: 
+
+![Output](<screenshots/readme/Deployment Health.png>)
+
+These checks confirm that the operator pulled the chart, rendered all templates, and applied them successfully in the cluster.
+
+---
+
+### 7. Weights and Biases Verification
  
 - Navigate to the W&B UI using the URL from the terraform output above. 
 
@@ -157,44 +192,8 @@ If the status shows "Provisioning", GCP is still trying to verify the domain. On
 
 ---
 
-### 7. Helm & Operator Verification
-
-Although the Terraform module handles installing the W&B Helm chart via the operator, there are some additional verifications checks you can run:
-
--  **Confirm operator is running**  
-
-   ```bash
-   kubectl -n wandb get pods -o wide --show-labels
-
-You should see a pod that starts with `wandb-controller-manager`
-
--  **Tail logs to monitor status:**
-
-    ```bash
-    kubectl -n wandb logs deploy/wandb-controller-manager --follow
-
-Look for a line like the following: 
-
-    ```bash
-    "Successfully applied spec","controller":"weightsandbiases"
-    ```
-
-**Confirm components are running:**
-
-    ```bash
-    `kubectl -n default get deployments,sts`
-    ```
-
-You should see your deployments all READY, for example: 
-
-![Output](<screenshots/readme/Deployment Health.png>)
-
-These checks confirm that the operator pulled the chart, rendered all templates, and applied them successfully in the cluster.
-
----
-
 ### Recommended next steps for Infrastructure Optimization
-- Fine-tune node pools & autoscaling (e.g. ramp up GKE node types in prod)
+- Fine-tune node pools & autoscaling (e.g. adjusting GKE node types in prod)
 - Enable monitoring & alerting (e.g. Cloud Monitoring Alerts integrated with external channels such as Slack to monitor Loadbalancer health checks and errors)
 - Explore additional module inputs (e.g. Redis Cache for faster application response times)
 
@@ -213,9 +212,10 @@ For a deeper look at the Terraform-provisioned infrastructure and the fully runn
 This project demonstrates alignment with Weights & Biases' core values: 
 
 - **Grit**: Overcame GKE SSD quota shortages, regional zone capacity constraints, load-balancer DNS/TLS challenges, and licensing integration issues to deliver a stable deployment.
-- **Curiosity**: Explored multiple access patterns (nip.io, port-forwarding, custom DNS), dove into cluster-level troubleshooting with `kubectl`—inspecting pod health, service endpoints, LoadBalancer IPs and logs—studied the W&B Helm chart and operator internals to understand how CRDs and controllers wire up the UI and backend, and evaluated post-deployment infrastructure optimizations.  
+- **Curiosity**: Explored multiple access patterns (nip.io, port-forwarding, custom DNS), dove into cluster-level troubleshooting with `kubectl`, inspecting pod health, service endpoints, LoadBalancer IPs and logs, studied the W&B Helm chart and operator internals to check health status, and evaluated post-deployment infrastructure optimizations.  
 - **Honesty**: Documented errors and workarounds to guide future users. 
 - **Gumption**: Quick delivery of a fully functional self-hosted W&B stack in GCP on first attempt
 
 Thank you for reviewing my work!
+
 Please feel free to reach out to me with any questions. 
