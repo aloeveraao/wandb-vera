@@ -1,0 +1,8 @@
+# Terraform state & cache
+**/*.tfstate
+**/*.tfstate.*
+.terraform/
+secrets.auto.tfvars
+
+# macOS
+.DS_Store
