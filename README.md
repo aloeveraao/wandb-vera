@@ -60,9 +60,11 @@ For `main.tf`, ensure you're pulling the latest version of the wandb module. Exa
 ### **⸻ Notes & Limitations ⸻**
 
 **Region and Zone** 
-- Consider choosing a less-contended GCP region when possible. Otherwise, you may encounter a resource constraint error (`GCE_STOCKOUT`). Keep in mind that  specifying a single `zone` does not mean that your resources will only be provisioned in that zone.
+- Consider choosing a less-contended GCP region when possible. Otherwise, you may encounter a resource constraint error (`GCE_STOCKOUT`). 
+- Keep in mind that  specifying a single `zone` does not mean that your resources will only be provisioned in that zone.
+- By default, the module deploys a regional GKE cluster with balanced auto-scaling (multi-zonal). 
 
-By default, the module deploys a regional GKE cluster with balanced auto-scaling (multi-zonal). As seen in the example below, we ran into errors for other zones, even though our `tfvars` file only had one zone explicitly listed. 
+As seen in the example below, we ran into errors for other zones, even though our `tfvars` file only had one zone explicitly listed. 
 
 ![Resource Constraint](<screenshots/readme/Resource Constraint.png>)
 
@@ -74,9 +76,11 @@ By default, the module deploys a regional GKE cluster with balanced auto-scaling
 
 ![Quota Error](<screenshots/readme/Quota Error.png>)
 
-If you encounter this error without specifying a deployment size, then you must manually override the Cluster Sizing in your terraform.tfvars. This is because the deployment size for W&B already defaults to the lowest level (small). Since we cannot set a lower level for cluster size, individual cluster parameters must be adjusted instead. 
+If you encounter this error without specifying a deployment size, then you must manually override the Cluster Sizing in your `terraform.tfvars`. 
 
-For this purposes of this deployment, the GKE node counts were adjusted. 
+This is because the deployment size for W&B already defaults to the lowest level (small). Since we cannot set a lower level for cluster size, individual cluster parameters must be adjusted instead. 
+
+**For this purposes of this deployment, the GKE node counts were adjusted.**
 
 Based on the GCP TFE Module documentation, each GKE node consumes 100 GB for the node root volume (assuming all other parameters are unchanged). 
 
@@ -88,9 +92,9 @@ See the image below for an example of a two-node GKE cluster that was deployed u
 
 ![2-node GKE Cluster](<screenshots/infrastructure/GKE Cluster.png>)
 
-Please note that specifying minimum and maximum GKE nodes will also prevent the cluster from auto-scaling beyond the set amounts. 
+- Please note that specifying minimum and maximum GKE nodes will also prevent the cluster from auto-scaling beyond the set amounts. 
 
-If desired, you could also change these size values: `redis_memory_size_gb`, `database_machine_type`, `gke_machine_type`
+- If desired, you can also change these size values: `redis_memory_size_gb`, `database_machine_type`, `gke_machine_type`
 
 **W&B License** 
 - You must have a valid license code, or you may experience errors while navigating your W&B UI (as shown below). A free trial of this license can be obtained here: https://wandb.ai/site/enterprise-trial/.
@@ -137,7 +141,7 @@ If you are unable to access the page, check your GCP loadbalancer certificate:
 
 ![Loadbalancer](<screenshots/infrastructure/Load Balancer.png>)
 
-**Network Services > Loadbalancing > Select your Loadbalancer > Frontend > Select the certificate next to HTTPS.**
+`Network Services > Loadbalancing > Select your loadbalancer > Frontend > Select the certificate next to HTTPS.`
 
 If the status shows "Provisioning", GCP is still trying to verify the domain. Once the certificate shows as "Active", you should be able to reach your URL with a secure HTTPS connection. 
 
@@ -166,19 +170,24 @@ You should see a pod that starts with `wandb-controller-manager`
 
 -  **Tail logs to monitor status:**
 
-`kubectl -n wandb logs deploy/wandb-controller-manager --follow`
+    ```bash
+    kubectl -n wandb logs deploy/wandb-controller-manager --follow
 
 Look for a line like the following: 
 
-`"Successfully applied spec","controller":"weightsandbiases"`
+    ```bash
+    "Successfully applied spec","controller":"weightsandbiases"
+    ```
 
 **Confirm components are running:**
 
-`kubectl -n default get deployments,sts`
+    ```bash
+    `kubectl -n default get deployments,sts`
+    ```
 
 You should see your deployments all READY, for example: 
 
-![Output](screenshots/README/image-3.png)
+![Output](<screenshots/readme/Deployment Health.png>)
 
 These checks confirm that the operator pulled the chart, rendered all templates, and applied them successfully in the cluster.
 
