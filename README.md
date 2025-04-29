@@ -101,7 +101,8 @@ See the image below for an example of a two-node GKE cluster that was deployed u
 - If you are not on GCP free tier, you can simply request a GCP quota increase as needed. 
 
 **W&B License** 
-- You must have a valid license code, or you may experience errors while navigating your W&B UI (as shown below). A free trial of this license can be obtained here: https://wandb.ai/site/enterprise-trial/.
+- You must have a valid license code, or you may experience errors while navigating your W&B UI (as shown below). 
+- A free trial of this license can be obtained here: https://wandb.ai/site/enterprise-trial/.
 
 ![License Error](<screenshots/platform/UI Errors.jpg>)
 
@@ -141,9 +142,9 @@ address = "34.237.13.125"
 bucket_name = "wandb-my-domain-data"
 ```
 ---
-### 6. Helm & Operator Verification
+### 6. Operator Verification
 
-Although the Terraform module handles installing the W&B Helm chart via the operator, there are some additional verifications checks you can run:
+Although the Terraform module deploys the W&B Operator using Helm, the operator is responsible for rendering and applying the W&B platform components. There are some additional checks that you can run to confirm:
 
 -  **Confirm operator is running**  
 
@@ -173,13 +174,14 @@ You should see your deployments all READY, for example:
 
 ![Output](<screenshots/readme/Deployment Health.png>)
 
-These checks confirm that the operator pulled the chart, rendered all templates, and applied them successfully in the cluster.
+These checks confirm that the operator successfully reconciled the resource, rendered the Helm chart templates, and applied the Kubernetes resources into the cluster.
+
 
 ---
 
 ### 7. Weights and Biases Verification
  
-- Navigate to the W&B UI using the URL from the terraform output above. 
+- Navigate to the W&B UI using the URL provided in the terraform output. 
 
 If you are unable to access the page, check your GCP loadbalancer certificate: 
 
