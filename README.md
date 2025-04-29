@@ -61,7 +61,7 @@ For `main.tf`, ensure you're pulling the latest version of the wandb module. Exa
 **Region and Zone** 
 - Consider choosing a less-contended GCP region when possible. Otherwise, you may encounter a resource constraint error (`GCE_STOCKOUT`). Keep in mind that  specifying a single `zone` does not mean that your resources will only be provisioned in that zone.
 
-By default, the module deploys a regional GKE cluster with balanced auto-scaling (multi-zonal). As seen in the example below, we ran into errors for other zones, even though our tfvars file only had one zone explicitly listed. 
+By default, the module deploys a regional GKE cluster with balanced auto-scaling (multi-zonal). As seen in the example below, we ran into errors for other zones, even though our `tfvars` file only had one zone explicitly listed. 
 
 ![Resource Constraint](<screenshots/readme/Resource Constraint.png>)
 
@@ -75,17 +75,21 @@ By default, the module deploys a regional GKE cluster with balanced auto-scaling
 
 If you encounter this error without specifying a deployment size, then you must manually override the Cluster Sizing in your terraform.tfvars. This is because the deployment size for W&B already defaults to the lowest level (small). Since we cannot set a lower level for cluster size, individual cluster parameters must be adjusted instead. 
 
-For this purposes of this deployment, the GKE node counts were adjusted. Based on the GCP TFE Module documentation, each GKE node consumes 100 GB for the node root volume (assuming all other parameters are unchanged). 
+For this purposes of this deployment, the GKE node counts were adjusted. 
+
+Based on the GCP TFE Module documentation, each GKE node consumes 100 GB for the node root volume (assuming all other parameters are unchanged). 
 
 ![GKE Node Size](<screenshots/readme/GKE Node Size.png>)
 
 Therefore, the maximum node count was set to 5 nodes, thus ensuring that the total GB used remains under the free tier quota limit of 500 GB. 
 
+See the image below for an example of a two-node GKE cluster that was deployed under these parameters. 
+
 ![2-node GKE Cluster](<screenshots/infrastructure/GKE Cluster.png>)
 
 Please note that specifying minimum and maximum GKE nodes will also prevent the cluster from auto-scaling beyond the set amounts. 
 
-If desired, you could also change these size values: redis_memory_size_gb, database_machine_type, gke_machine_type
+If desired, you could also change these size values: `redis_memory_size_gb`, `database_machine_type`, `gke_machine_type`
 
 **W&B License** 
 - You must have a valid license code, or you will experience errors while navigating your W&B UI. A free trial of this license can be obtained here: https://wandb.ai/site/enterprise-trial/.
@@ -111,9 +115,11 @@ Your output should look similar to the following:
 
 Outputs:
 
-```url = "https://wandb.my-domain.com"
+```
+url = "https://wandb.my-domain.com"
 address = "34.237.13.125"
-bucket_name = "wandb-my-domain-data"```
+bucket_name = "wandb-my-domain-data"
+```
 
 ---
 
