@@ -98,6 +98,8 @@ See the image below for an example of a two-node GKE cluster that was deployed u
 
 - If desired, you can also change these size values: `redis_memory_size_gb`, `database_machine_type`, `gke_machine_type`
 
+- If you are not on GCP free tier, you can simply request a GCP quota increase as needed. 
+
 **W&B License** 
 - You must have a valid license code, or you may experience errors while navigating your W&B UI (as shown below). A free trial of this license can be obtained here: https://wandb.ai/site/enterprise-trial/.
 
@@ -181,13 +183,13 @@ These checks confirm that the operator pulled the chart, rendered all templates,
 
 If you are unable to access the page, check your GCP loadbalancer certificate: 
 
-![Loadbalancer](<screenshots/infrastructure/Load Balancer.png>)
-
 `Network Services > Loadbalancing > Select your loadbalancer > Frontend > Select the certificate next to HTTPS.`
+
+![Loadbalancer](<screenshots/infrastructure/Load Balancer.png>)
 
 If the status shows "Provisioning", GCP is still trying to verify the domain. Once the certificate shows as "Active", you should be able to reach your URL with a secure HTTPS connection. 
 
-- Once the page loads, you will be prompted to create an account or sign in.
+- Once the W&B UI loads, you will be prompted to create an account or sign in.
 
 - From there, follow the instructions to programatically authenticate to W&B and your simulate your first run. Note that you may need to create a project first to ensure a successful run.
 
